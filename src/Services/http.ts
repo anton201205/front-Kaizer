@@ -11,6 +11,9 @@ http.interceptors.request.use((config) => {
   if (token) {
     config.headers = config.headers ?? {};
     config.headers.Authorization = `Bearer ${token}`;
+    console.log('[HTTP] Token enviado:', token.substring(0, 20) + '...');
+  } else {
+    console.warn('[HTTP] ⚠️ Sin token');
   }
   console.log(`[HTTP] ${config.method?.toUpperCase()} → ${config.baseURL}${config.url}`);
   return config;
@@ -22,7 +25,8 @@ http.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error(`[HTTP] ❌ ${error.response?.status} ← ${error.config?.url}`, error.response?.data);
+    console.error(`[HTTP] ❌ ${error.response?.status} ← ${error.config?.url}`);
+    console.error('[HTTP] Error body:', error.response?.data);
     return Promise.reject(error);
   }
 );

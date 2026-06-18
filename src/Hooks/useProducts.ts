@@ -21,10 +21,6 @@ export function useProducts(): UseProductsState {
       try {
         const data = await getProducts();
         setProducts(data);
-      } catch (err: any) {
-        console.error('[useProducts] ❌', err?.message);
-        setError(err?.message ?? 'Error al cargar productos');
-        setProducts([]);
       } finally {
         setLoading(false);
       }
