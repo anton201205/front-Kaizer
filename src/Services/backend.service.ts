@@ -6,7 +6,6 @@ const SPRING_BOOT_URL =
 
 export async function warmUpBackend(): Promise<void> {
   if (!SPRING_BOOT_URL) return;
-
   try {
     await fetch(`${SPRING_BOOT_URL.replace(/\/+$/, '')}/api/health`, {
       method: 'GET',
@@ -29,6 +28,7 @@ type CheckoutRequest = {
   items: Array<{ productId: number; quantity: number }>;
   envio: number;
   district: string;
+  metodoPago: string;
 };
 
 type CheckoutResponse = {
@@ -42,7 +42,8 @@ type CheckoutResponse = {
 export async function checkout(
   cart: CartItem[],
   envio: number,
-  district: string
+  district: string,
+  metodoPago: string
 ): Promise<CheckoutResponse> {
   if (!SPRING_BOOT_URL) {
     throw new Error('Falta VITE_SPRING_BOOT_URL (o VITE_API_URL).');
@@ -53,17 +54,20 @@ export async function checkout(
   const body: CheckoutRequest = {
     items: cart
       .filter((i) => i.id != null)
-      .map((i) => ({
-        productId: i.id as number,
-        quantity: i.quantity
-      })),
+      .map((i) => ({ productId: i.id as number, quantity: i.quantity })),
     envio,
-    district
+    district,
+    metodoPago
   };
+
+  const token = localStorage.getItem('token');
 
   const res = await fetch(`${baseUrl}/api/checkout`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {})
+    },
     body: JSON.stringify(body)
   });
 
@@ -77,5 +81,5 @@ export async function checkout(
     throw new Error(text || `Error en checkout (${res.status}).`);
   }
 
-  return (await res.json()) as CheckoutResponse;
+  return res.json() as Promise<CheckoutResponse>;
 }

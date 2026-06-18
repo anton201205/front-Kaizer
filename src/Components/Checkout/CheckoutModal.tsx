@@ -98,7 +98,7 @@ export default function CheckoutModal({
     setError('');
 
     try {
-      const res = await checkout(cart, envio, district);
+      const res = await checkout(cart, envio, district, method);
       setOrderId(res.orderId);
       setStep('receipt');
       onSuccess(res.orderId);
