@@ -1,0 +1,373 @@
+.kaizer-catalog-wrapper {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 35px !important;
+  max-width: 1350px !important;
+  margin: 50px auto !important;
+  padding: 0 20px !important;
+  align-items: flex-start !important;
+  box-sizing: border-box !important;
+}
+
+.kaizer-sidebar {
+  width: 250px !important;
+  flex-shrink: 0 !important;
+  background: #151515 !important;
+  border: 1px solid #252525 !important;
+  padding: 22px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4) !important;
+  box-sizing: border-box !important;
+}
+
+.kaizer-sidebar-title {
+  margin-top: 0 !important;
+  margin-bottom: 20px !important;
+  font-size: 1.1rem !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border-bottom: 1px solid #252525 !important;
+  padding-bottom: 10px !important;
+}
+
+.kaizer-filter-item {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.kaizer-filter-item label {
+  font-size: 0.85rem !important;
+  color: #aaaaaa !important;
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+.kaizer-filter-item label span {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.kaizer-select-input {
+  width: 100% !important;
+  padding: 10px !important;
+  background: #202025 !important;
+  color: #ffffff !important;
+  border: 1px solid #303035 !important;
+  border-radius: 8px !important;
+  font-size: 0.85rem !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+
+.kaizer-range-input {
+  width: 100% !important;
+  accent-color: #ffffff !important;
+  cursor: pointer !important;
+}
+
+.kaizer-main-content {
+  flex-grow: 1 !important;
+}
+
+.kaizer-main-title {
+  text-align: left !important;
+  font-size: 2rem !important;
+  margin-top: 0 !important;
+  margin-bottom: 20px !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.kaizer-chips-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin-bottom: 30px !important;
+}
+
+.kaizer-chip-btn {
+  background: #151515 !important;
+  border: 1px solid #252525 !important;
+  color: #aaaaaa !important;
+  padding: 6px 14px !important;
+  border-radius: 20px !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+}
+
+.kaizer-chip-btn:hover {
+  border-color: #555555 !important;
+  color: #ffffff !important;
+}
+
+.kaizer-chip-btn.is-active {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+}
+
+.kaizer-products-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 25px !important;
+  width: 100% !important;
+}
+
+.kaizer-card {
+  background: #151515 !important; 
+  border: 1px solid #222222 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.4) !important;
+  height: auto !important; 
+}
+
+.kaizer-card-img-box {
+  background: #ffffff !important;
+  margin: 0 !important;
+  width: 100% !important;
+  height: 230px !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
+}
+
+.kaizer-card-img {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+}
+
+.kaizer-card-body {
+  text-align: left !important;
+  padding: 16px 16px 10px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+.kaizer-card-name {
+  color: #ffffff !important;
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.kaizer-card-price {
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  color: #b5b5be !important;
+  margin: 0 !important;
+}
+
+.kaizer-card-stock {
+  font-size: 0.75rem !important;
+  color: #666666 !important;
+  margin: 0 !important;
+}
+
+.kaizer-card-footer {
+  padding: 0 16px 16px 16px !important;
+  display: flex !important;
+  flex-direction: row !important; 
+  gap: 10px !important;
+  margin-top: auto !important; 
+}
+.kaizer-btn-details,
+.kaizer-btn-cart {
+  flex: 1 !important; 
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+}
+
+.kaizer-btn-details {
+  background: #e4e4eb !important;
+  color: #1c1c24 !important;
+  border: 1px solid #e4e4eb !important;
+  text-decoration: none !important;
+}
+
+.kaizer-btn-details:hover {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.kaizer-btn-cart {
+  background: rgba(255, 255, 255, 0.02) !important;
+  color: #e2e2e9 !important;
+  border: 1px solid #3a3a45 !important;
+}
+
+.kaizer-btn-cart:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: #555565 !important;
+  color: #ffffff !important;
+}
+
+.kaizer-btn-cart:disabled {
+  opacity: 0.2 !important;
+  cursor: not-allowed !important;
+}
+
+.kaizer-empty-msg {
+  text-align: center !important;
+  padding: 40px !important;
+  color: #666666 !important;
+  background: #151515 !important;
+  border-radius: 16px !important;
+  border: 1px dashed #252525 !important;
+}
+
+.kaizer-loading-box,
+.kaizer-error-box {
+  max-width: 1300px;
+  margin: 60px auto;
+  padding: 20px;
+  color: #ffffff;
+  text-align: center;
+}
+
+
+@media (max-width: 1150px) {
+  .kaizer-catalog-wrapper {
+    flex-direction: column !important;
+  }
+  .kaizer-sidebar {
+    width: 100% !important;
+  }
+  .kaizer-products-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 700px) {
+  .kaizer-products-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* --- 2.2 Conmutador de disponibilidad de inventario --- */
+
+.kaizer-toggle-item {
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding-top: 6px !important;
+}
+
+.kaizer-toggle-item label {
+  color: #aaaaaa !important;
+  font-size: 0.85rem !important;
+}
+
+.kaizer-toggle {
+  position: relative !important;
+  width: 42px !important;
+  height: 24px !important;
+  border-radius: 999px !important;
+  background: #202025 !important;
+  border: 1px solid #303035 !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+  transition: background 0.2s ease, border-color 0.2s ease !important;
+}
+
+.kaizer-toggle.is-on {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.kaizer-toggle-knob {
+  position: absolute !important;
+  top: 2px !important;
+  left: 2px !important;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+  background: #aaaaaa !important;
+  transition: transform 0.2s ease, background 0.2s ease !important;
+}
+
+.kaizer-toggle.is-on .kaizer-toggle-knob {
+  background: #151515 !important;
+  transform: translateX(18px) !important;
+}
+
+/* --- 2.3 Skeleton loading --- */
+
+.kaizer-skeleton,
+.kaizer-skeleton-line {
+  background: linear-gradient(
+    90deg,
+    #1a1a1a 25%,
+    #232323 37%,
+    #1a1a1a 63%
+  ) !important;
+  background-size: 400% 100% !important;
+  animation: kaizer-pulse 1.4s ease-in-out infinite !important;
+  border-radius: 8px !important;
+}
+
+.kaizer-card-skeleton .kaizer-card-img-box {
+  background: #1a1a1a !important;
+  animation: kaizer-pulse 1.4s ease-in-out infinite !important;
+  background-image: linear-gradient(
+    90deg,
+    #1a1a1a 25%,
+    #232323 37%,
+    #1a1a1a 63%
+  ) !important;
+  background-size: 400% 100% !important;
+}
+
+.kaizer-skeleton-text {
+  height: 14px !important;
+  margin: 4px 0 !important;
+}
+
+.kaizer-skeleton-btn {
+  flex: 1 !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+}
+
+.kaizer-sidebar-skeleton .kaizer-skeleton-line {
+  height: 38px !important;
+  margin-bottom: 14px !important;
+}
+
+.kaizer-sidebar-skeleton .kaizer-skeleton-title {
+  height: 22px !important;
+  width: 60% !important;
+  margin-bottom: 20px !important;
+}
+
+@keyframes kaizer-pulse {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
