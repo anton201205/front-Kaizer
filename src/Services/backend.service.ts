@@ -14,7 +14,7 @@ export async function warmUpBackend(): Promise<void> {
       credentials: 'omit'
     });
   } catch {
-    // Silencioso por diseño (warm-up no debe romper UX)
+    // Silencioso por diseño
   }
 }
 
@@ -27,14 +27,23 @@ export class StockInsuficienteError extends Error {
 
 type CheckoutRequest = {
   items: Array<{ productId: number; quantity: number }>;
+  envio: number;
+  district: string;
 };
 
 type CheckoutResponse = {
   orderId: number;
+  subtotal: number;
+  igv: number;
+  envio: number;
   total: number;
 };
 
-export async function checkout(cart: CartItem[]): Promise<CheckoutResponse> {
+export async function checkout(
+  cart: CartItem[],
+  envio: number,
+  district: string
+): Promise<CheckoutResponse> {
   if (!SPRING_BOOT_URL) {
     throw new Error('Falta VITE_SPRING_BOOT_URL (o VITE_API_URL).');
   }
@@ -47,7 +56,9 @@ export async function checkout(cart: CartItem[]): Promise<CheckoutResponse> {
       .map((i) => ({
         productId: i.id as number,
         quantity: i.quantity
-      }))
+      })),
+    envio,
+    district
   };
 
   const res = await fetch(`${baseUrl}/api/checkout`, {
@@ -68,4 +79,3 @@ export async function checkout(cart: CartItem[]): Promise<CheckoutResponse> {
 
   return (await res.json()) as CheckoutResponse;
 }
-
