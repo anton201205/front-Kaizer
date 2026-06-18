@@ -36,8 +36,13 @@ export default function Login() {
     try {
       await login(email, password);
       navigate('/', { replace: true });
-    } catch {
-      setError('Credenciales inválidas');
+    } catch (error: any) {
+      const msg = error?.message ?? '';
+      if (msg.includes('conexión')) {
+        setError(msg);
+      } else {
+        setError('Credenciales inválidas');
+      }
     }
   };
 

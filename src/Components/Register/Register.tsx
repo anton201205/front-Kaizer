@@ -36,9 +36,13 @@ export default function Register() {
     try {
       await registerUser(email, password);
       navigate('/', { replace: true });
-    } catch {
+    } catch (error: any) {
+    const msg = error?.message ?? '';
+    if (msg.includes('conexión')) {
+      setError(msg);
+    } else {
       setError('No se pudo registrar el usuario');
-    }
+    }}
   };
 
   return (
