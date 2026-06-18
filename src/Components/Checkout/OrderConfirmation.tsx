@@ -34,9 +34,58 @@ export default function OrderConfirmation({
   const receiptRef = useRef<HTMLDivElement>(null);
   const dateStr = formatDate();
 
-  const handlePrint = () => {
-    window.print();
-  };
+const handlePrint = () => {
+  const receiptEl = document.getElementById('printable-receipt');
+  if (!receiptEl) return;
+
+  const printWindow = window.open('', '_blank', 'width=800,height=600');
+  if (!printWindow) return;
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8" />
+      <title>Boleta #${String(orderId).padStart(6, '0')} - Kaizer Store</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Courier New', monospace; background: #fff; color: #000; padding: 2rem; }
+        .oc-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+        .oc-logo { display: flex; align-items: center; gap: 0.5rem; }
+        .oc-logo-mark { font-size: 2rem; font-weight: bold; }
+        .oc-logo-name { font-size: 1.2rem; font-weight: bold; }
+        .oc-company-info { text-align: right; font-size: 0.8rem; line-height: 1.6; }
+        .oc-doc-type { text-align: center; font-weight: bold; font-size: 1rem; border: 2px solid #000; padding: 0.4rem; margin: 1rem 0; }
+        .oc-order-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
+        .oc-meta-label { font-size: 0.7rem; text-transform: uppercase; color: #555; display: block; }
+        .oc-meta-value { font-weight: bold; font-size: 0.9rem; }
+        .oc-order-id { font-size: 1.1rem; }
+        .oc-divider { border-top: 1px dashed #000; margin: 1rem 0; }
+        .oc-items-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .oc-items-table th { border-bottom: 2px solid #000; padding: 0.4rem; text-align: left; }
+        .oc-items-table td { padding: 0.4rem; border-bottom: 1px solid #ddd; }
+        .oc-th-qty, .oc-td-qty, .oc-th-price, .oc-td-price, .oc-th-total, .oc-td-total { text-align: right; }
+        .oc-item-cat { display: block; font-size: 0.75rem; color: #666; }
+        .oc-totals { margin-left: auto; width: 60%; }
+        .oc-total-row { display: flex; justify-content: space-between; padding: 0.25rem 0; font-size: 0.85rem; }
+        .oc-total-final { font-weight: bold; font-size: 1rem; border-top: 2px solid #000; margin-top: 0.5rem; padding-top: 0.5rem; }
+        .oc-footer { text-align: center; font-size: 0.75rem; color: #555; line-height: 1.8; margin-top: 1rem; }
+        .oc-footer-thanks { font-weight: bold; color: #000; margin-top: 0.5rem; }
+      </style>
+    </head>
+    <body>
+      ${receiptEl.innerHTML}
+    </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+  printWindow.focus();
+
+  setTimeout(() => {
+    printWindow.print();
+  }, 500);
+};
 
   return (
     <div className="oc-wrapper">
