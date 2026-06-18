@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import './Cart.css';
 import { useCart } from '../../Services/CartContext';
+import { useAuth } from '../../Services/AuthContext';
 import CheckoutModal from '../Checkout/CheckoutModal';
 
 const SHIPPING_RATES: Record<string, number> = {
@@ -39,10 +40,11 @@ const IGV_RATE = 0.18;
 
 export default function Cart() {
   const { cart, removeAt, updateQuantity, clearCart } = useCart();
+  const { isAuthenticated } = useAuth();
   const [loading] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState('Miraflores');
-  const [showCheckout, setShowCheckout]     = useState(false);
-  const [orderData, setOrderData]           = useState<null | {
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [orderData, setOrderData] = useState<null | {
     orderId: number;
     subtotal: number;
     igv: number;
@@ -62,6 +64,27 @@ export default function Cart() {
   const envio         = useMemo(() => SHIPPING_RATES[selectedDistrict] ?? 20, [selectedDistrict]);
   const total         = useMemo(() => subtotalBruto + envio, [subtotalBruto, envio]);
 
+  if (!isAuthenticated) {
+    return (
+      <div className="cart-container">
+        <h2 className="cart-title">
+          Carrito de compras <i className="fi fi-rs-shopping-cart-add"></i>
+        </h2>
+        <div className="empty-cart">
+          <div className="feature-icon">
+            <i className="fi fi-rs-lock"></i>
+          </div>
+          <h3>Inicia sesión para ver tu carrito</h3>
+          <p>Necesitas una cuenta para continuar con tu compra.</p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <Link to="/login" className="shop-button">Iniciar sesión</Link>
+            <Link to="/register" className="shop-button">Crear cuenta</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="cart-container">
       <h2 className="cart-title">
@@ -70,7 +93,6 @@ export default function Cart() {
 
       {cart.length > 0 ? (
         <div className="cart-layout">
-
           <div className="cart-products">
             {cart.map((item, index) => (
               <div className="cart-card" key={index}>
@@ -149,31 +171,22 @@ export default function Cart() {
             <div className="summary-divider" />
 
             <div className="summary-row">
-              <span>
-                Subtotal ({cart.reduce((a, i) => a + i.quantity, 0)} und.)
-              </span>
+              <span>Subtotal ({cart.reduce((a, i) => a + i.quantity, 0)} und.)</span>
               <strong>S/ {subtotalBruto.toFixed(2)}</strong>
             </div>
 
             <div className="summary-row summary-row--muted">
-              <span>
-                Precio Base
-                <span className="summary-hint">(sin IGV)</span>
-              </span>
+              <span>Precio Base <span className="summary-hint">(sin IGV)</span></span>
               <span>S/ {baseImponible.toFixed(2)}</span>
             </div>
 
             <div className="summary-row summary-row--muted">
-              <span>
-                IGV 18%
-              </span>
+              <span>IGV 18%</span>
               <span>S/ {igv.toFixed(2)}</span>
             </div>
 
             <div className="summary-row">
-              <span>
-                Envío <span className="summary-hint">({selectedDistrict})</span>
-              </span>
+              <span>Envío <span className="summary-hint">({selectedDistrict})</span></span>
               <strong className={envio === 0 ? 'summary-free' : ''}>
                 {envio === 0 ? 'Gratis' : `S/ ${envio.toFixed(2)}`}
               </strong>

@@ -12,7 +12,7 @@ export async function login(email: string, password: string): Promise<LoginRespo
   console.log('[AUTH] Login →', `${API_URL}/api/auth/login`);
   try {
     const { data } = await http.post<LoginResponse>('/api/auth/login', { email, password });
-    console.log('[AUTH] ✅ Login exitoso');
+    console.log('[AUTH] Login exitoso');
     return data;
   } catch (error: any) {
     const status = error?.response?.status;
@@ -26,7 +26,7 @@ export async function register(email: string, password: string): Promise<LoginRe
   console.log('[AUTH] Register →', `${API_URL}/api/auth/register`);
   try {
     const { data } = await http.post<LoginResponse>('/api/auth/register', { email, password });
-    console.log('[AUTH] ✅ Registro exitoso');
+    console.log('[AUTH] Registro exitoso');
     return data;
   } catch (error: any) {
     const status = error?.response?.status;

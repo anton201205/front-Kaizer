@@ -29,10 +29,10 @@ export async function getProducts(): Promise<Product[]> {
   console.log('[PRODUCTS] Obteniendo productos desde Render...');
   try {
     const { data } = await http.get<ProductoApi[]>('/api/productos');
-    console.log('[PRODUCTS] ✅ Productos obtenidos:', data.length);
+    console.log('[PRODUCTS] Productos obtenidos:', data.length);
     return (data ?? []).map(mapApiToProduct);
   } catch (error: any) {
-    console.error('[PRODUCTS] ❌ Error al obtener productos:', error?.response?.status);
+    console.error('[PRODUCTS] Error al obtener productos:', error?.response?.status);
     throw new Error('Error de conexión con el servidor');
   }
 }
