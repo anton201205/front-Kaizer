@@ -1,5 +1,5 @@
+import { http } from './http';
 import type { Product } from '../Model/Product';
-import { supabase } from './supabaseClient';
 
 interface ProductoApi {
   id: number;
@@ -8,9 +8,8 @@ interface ProductoApi {
   stock?: number;
   image_url?: string;
   imageUrl?: string;
-  descripción?: string;
   descripcion?: string;
-  especificaciones?: any; 
+  especificaciones?: any;
 }
 
 function mapApiToProduct(p: ProductoApi): Product {
@@ -20,37 +19,31 @@ function mapApiToProduct(p: ProductoApi): Product {
     price: p.precio,
     imageUrl: p.imageUrl ?? p.image_url ?? '',
     category: 'General',
-    description:
-      p.descripción ||
-      p.descripcion ||
-      (p.stock != null ? `Unidades en stock: ${p.stock}.` : undefined),
+    description: p.descripcion ?? (p.stock != null ? `Unidades en stock: ${p.stock}.` : undefined),
     stock: p.stock,
-    specifications: p.especificaciones 
+    specifications: p.especificaciones
   };
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const { data, error } = await supabase
-    .from('productos')
-    .select('id,nombre,precio,stock,image_url,descripcion,especificaciones')
-    .order('nombre', { ascending: true });
-
-  if (error) throw new Error(error.message);
-
-  return ((data ?? []) as ProductoApi[]).map(mapApiToProduct);
+  console.log('[PRODUCTS] Obteniendo productos desde Render...');
+  try {
+    const { data } = await http.get<ProductoApi[]>('/api/productos');
+    console.log('[PRODUCTS] ✅ Productos obtenidos:', data.length);
+    return (data ?? []).map(mapApiToProduct);
+  } catch (error: any) {
+    console.error('[PRODUCTS] ❌ Error al obtener productos:', error?.response?.status);
+    throw new Error('Error de conexión con el servidor');
+  }
 }
 
-export async function getProductById(
-  id: number
-): Promise<Product | undefined> {
-  const { data, error } = await supabase
-    .from('productos')
-    .select('id,nombre,precio,stock,image_url,descripcion,especificaciones')
-    .eq('id', id)
-    .maybeSingle();
-
-  if (error) throw new Error(error.message);
-  if (!data) return undefined;
-
-  return mapApiToProduct(data as ProductoApi);
+export async function getProductById(id: number): Promise<Product | undefined> {
+  console.log('[PRODUCTS] Obteniendo producto', id, 'desde Render...');
+  try {
+    const { data } = await http.get<ProductoApi>(`/api/productos/${id}`);
+    return mapApiToProduct(data);
+  } catch (error: any) {
+    if (error?.response?.status === 404) return undefined;
+    throw new Error('Error de conexión con el servidor');
+  }
 }
