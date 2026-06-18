@@ -1,352 +1,275 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../../Services/AuthContext';
+import {
+  getPerfil,
+  updatePerfil,
+  getMisOrdenes,
+  type PerfilData,
+  type Orden,
+} from '../../Services/usuario.service';
 import './Profile.css';
 
-interface ProfileForm {
-  nombre: string;
-  apellido: string;
-  telefono: string;
-  documento: string;
-  direccion: string;
-  distrito: string;
-}
+const DISTRITOS = [
+  'Miraflores','San Isidro','Surco','La Molina','San Borja','Barranco',
+  'Magdalena','Pueblo Libre','Jesús María','Lince','San Miguel','Breña',
+  'Rímac','La Victoria','Ate','Vitarte','San Juan de Lurigancho','Comas',
+  'Los Olivos','Independencia','El Agustino','Villa El Salvador',
+  'Villa María del Triunfo','San Juan de Miraflores','Chorrillos','Callao','Otro distrito',
+];
 
-interface OrderItem {
-  productId: number;
-  name: string;
-  quantity: number;
-  price: number;
-}
-
-interface Order {
-  orderId: number;
-  fecha: string;
-  total: number;
-  estado: 'pendiente' | 'procesando' | 'enviado' | 'entregado' | 'cancelado';
-  items: OrderItem[];
-}
-
-const ESTADO_LABEL: Record<Order['estado'], string> = {
-  pendiente:   'Pendiente',
-  procesando:  'Procesando',
-  enviado:     'Enviado',
-  entregado:   'Entregado',
-  cancelado:   'Cancelado',
-};
-
-const ESTADO_CLASS: Record<Order['estado'], string> = {
-  pendiente:  'badge badge--warning',
-  procesando: 'badge badge--info',
-  enviado:    'badge badge--primary',
-  entregado:  'badge badge--success',
-  cancelado:  'badge badge--danger',
-};
+type Tab = 'perfil' | 'ordenes';
 
 export default function Profile() {
   const { isAuthenticated, userEmail } = useAuth();
 
-  const [form, setForm] = useState<ProfileForm>({
-    nombre:    '',
-    apellido:  '',
-    telefono:  '',
-    documento: '',
+  const [tab, setTab] = useState<Tab>('perfil');
+  const [perfil, setPerfil] = useState<PerfilData | null>(null);
+  const [ordenes, setOrdenes] = useState<Orden[]>([]);
+  const [loadingPerfil, setLoadingPerfil] = useState(true);
+  const [loadingOrdenes, setLoadingOrdenes] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [expandedOrden, setExpandedOrden] = useState<number | null>(null);
+
+  const [form, setForm] = useState({
+    nombre: '',
+    telefono: '',
     direccion: '',
-    distrito:  '',
+    distrito: '',
+    dni: '',
   });
-
-  const [saving,        setSaving]       = useState(false);
-  const [saveMsg,       setSaveMsg]      = useState<string | null>(null);
-  const [orders,        setOrders]       = useState<Order[]>([]);
-  const [loadingOrders, setLoadingOrders] = useState(true);
-  const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem('userProfile');
-    if (stored) {
-      try { setForm(JSON.parse(stored)); } catch { /* ignore */ }
-    }
-  }, []);
-
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    setLoadingOrders(true);
-
-    setTimeout(() => {
-      setOrders([
-        {
-          orderId: 1042,
-          fecha:   '2025-06-01',
-          total:   189.90,
-          estado:  'entregado',
-          items: [
-            { productId: 3, name: 'The Last of Us Part II',  quantity: 1, price: 149.90 },
-            { productId: 7, name: 'Control Ultimate Edition', quantity: 1, price:  40.00 },
-          ],
-        },
-        {
-          orderId: 1057,
-          fecha:   '2025-06-10',
-          total:    89.90,
-          estado:  'enviado',
-          items: [
-            { productId: 12, name: 'Hades',         quantity: 2, price: 39.90 },
-            { productId: 19, name: 'Celeste',        quantity: 1, price: 10.10 },
-          ],
-        },
-        {
-          orderId: 1063,
-          fecha:   '2025-06-14',
-          total:   220.00,
-          estado:  'procesando',
-          items: [
-            { productId: 5, name: 'Elden Ring', quantity: 1, price: 220.00 },
-          ],
-        },
-      ]);
-      setLoadingOrders(false);
-    }, 800);
-  }, [isAuthenticated, userEmail]);
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  useEffect(() => {
+    getPerfil()
+      .then((data) => {
+        setPerfil(data);
+        setForm({
+          nombre: data.nombre ?? '',
+          telefono: data.telefono ?? '',
+          direccion: data.direccion ?? '',
+          distrito: data.distrito ?? '',
+          dni: data.dni ?? '',
+        });
+      })
+      .catch(() => toast.error('No se pudo cargar el perfil'))
+      .finally(() => setLoadingPerfil(false));
+  }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (tab !== 'ordenes') return;
+    setLoadingOrdenes(true);
+    getMisOrdenes()
+      .then(setOrdenes)
+      .catch(() => toast.error('No se pudo cargar el historial'))
+      .finally(() => setLoadingOrdenes(false));
+  }, [tab]);
+
+  const handleSave = async () => {
     setSaving(true);
-    setSaveMsg(null);
-
-    await new Promise(r => setTimeout(r, 600));
-    localStorage.setItem('userProfile', JSON.stringify(form));
-
-    setSaving(false);
-    setSaveMsg('Perfil actualizado correctamente.');
-    setTimeout(() => setSaveMsg(null), 3500);
+    try {
+      const updated = await updatePerfil(form);
+      setPerfil(updated);
+      toast.success('Perfil actualizado correctamente');
+    } catch {
+      toast.error('Error al guardar el perfil');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const toggleOrder = (id: number) =>
-    setExpandedOrder(prev => (prev === id ? null : id));
+  const formatDate = (iso: string) =>
+    new Intl.DateTimeFormat('es-PE', {
+      day: '2-digit', month: 'long', year: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    }).format(new Date(iso));
 
   return (
-    <div className="profile-container">
-
-      <header className="profile-header">
-        <div className="profile-avatar" aria-hidden="true">
-          {(form.nombre ? form.nombre[0] : userEmail?.[0] ?? '?').toUpperCase()}
+    <div className="profile-page">
+      <div className="profile-header">
+        <div className="profile-avatar">
+          {userEmail?.[0]?.toUpperCase() ?? 'U'}
         </div>
-        <div className="profile-header-info">
-          <h1 className="profile-name">
-            {form.nombre && form.apellido
-              ? `${form.nombre} ${form.apellido}`
-              : userEmail ?? 'Mi perfil'}
-          </h1>
-          <p className="profile-email">
-            <i className="fi fi-rs-envelope" aria-hidden="true" />
-            {userEmail}
-          </p>
+        <div>
+          <h2 className="profile-name">{perfil?.nombre || 'Mi Perfil'}</h2>
+          <p className="profile-email">{userEmail}</p>
+          <span className="profile-role">{perfil?.role ?? 'USER'}</span>
         </div>
-      </header>
+      </div>
 
-      <div className="profile-grid">
+      <div className="profile-tabs">
+        <button
+          className={`profile-tab ${tab === 'perfil' ? 'active' : ''}`}
+          onClick={() => setTab('perfil')}
+        >
+          <i className="fi fi-rs-user" /> Datos personales
+        </button>
+        <button
+          className={`profile-tab ${tab === 'ordenes' ? 'active' : ''}`}
+          onClick={() => setTab('ordenes')}
+        >
+          <i className="fi fi-rs-box-alt" /> Mis órdenes
+        </button>
+      </div>
 
-        <section className="profile-card" aria-labelledby="datos-heading">
-          <h2 id="datos-heading" className="profile-card-title">
-            <i className="fi fi-rs-user" aria-hidden="true" />
-            Datos personales
-          </h2>
-
-          <form onSubmit={handleSave} noValidate>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label htmlFor="nombre">Nombre</label>
+      {tab === 'perfil' && (
+        <div className="profile-card">
+          {loadingPerfil ? (
+            <p className="profile-loading">Cargando...</p>
+          ) : (
+            <div className="profile-form">
+              <div className="profile-field">
+                <label>Nombre completo</label>
                 <input
-                  id="nombre" name="nombre" type="text"
-                  placeholder="Ej. Carlos"
+                  type="text"
                   value={form.nombre}
-                  onChange={handleChange}
+                  placeholder="Ej: Juan Pérez"
+                  onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                 />
               </div>
-              <div className="form-group">
-                <label htmlFor="apellido">Apellido</label>
+
+              <div className="profile-field">
+                <label>Teléfono</label>
                 <input
-                  id="apellido" name="apellido" type="text"
-                  placeholder="Ej. Ramírez"
-                  value={form.apellido}
-                  onChange={handleChange}
+                  type="text"
+                  value={form.telefono}
+                  placeholder="9 dígitos"
+                  maxLength={9}
+                  onChange={(e) => setForm({ ...form, telefono: e.target.value.replace(/\D/g, '') })}
                 />
               </div>
+
+              <div className="profile-field">
+                <label>DNI</label>
+                <input
+                  type="text"
+                  value={form.dni}
+                  placeholder="8 dígitos"
+                  maxLength={8}
+                  onChange={(e) => setForm({ ...form, dni: e.target.value.replace(/\D/g, '') })}
+                />
+              </div>
+
+              <div className="profile-field">
+                <label>Dirección de envío</label>
+                <input
+                  type="text"
+                  value={form.direccion}
+                  placeholder="Av. Ejemplo 123, Dpto 4B"
+                  onChange={(e) => setForm({ ...form, direccion: e.target.value })}
+                />
+              </div>
+
+              <div className="profile-field">
+                <label>Distrito</label>
+                <select
+                  value={form.distrito}
+                  onChange={(e) => setForm({ ...form, distrito: e.target.value })}
+                >
+                  <option value="">Selecciona un distrito</option>
+                  {DISTRITOS.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              </div>
+
+              <button
+                className="profile-save-btn"
+                onClick={handleSave}
+                disabled={saving}
+              >
+                {saving ? 'Guardando...' : 'Guardar cambios'}
+              </button>
             </div>
+          )}
+        </div>
+      )}
 
-            <div className="form-group">
-              <label htmlFor="telefono">
-                Teléfono de contacto
-                <span className="form-hint">Para coordinar entregas</span>
-              </label>
-              <input
-                id="telefono" name="telefono" type="tel"
-                placeholder="Ej. 987 654 321"
-                value={form.telefono}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="documento">
-                DNI / RUC
-                <span className="form-hint">Para boleta o factura electrónica</span>
-              </label>
-              <input
-                id="documento" name="documento" type="text"
-                inputMode="numeric"
-                placeholder="Ej. 12345678 o 20512345678"
-                value={form.documento}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="direccion">
-                Dirección de entrega
-              </label>
-              <input
-                id="direccion" name="direccion" type="text"
-                placeholder="Calle, número, referencia"
-                value={form.direccion}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="distrito">Distrito</label>
-              <input
-                id="distrito" name="distrito" type="text"
-                placeholder="Ej. Vitarte"
-                value={form.distrito}
-                onChange={handleChange}
-              />
-            </div>
-
-            {saveMsg && (
-              <p className="save-success" role="status">
-                <i className="fi fi-rs-check-circle" aria-hidden="true" />
-                {saveMsg}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              className="save-button"
-              disabled={saving}
-            >
-              {saving ? 'Guardando…' : 'Guardar cambios'}
-            </button>
-
-          </form>
-        </section>
-
-        <section className="profile-card orders-card" aria-labelledby="orders-heading">
-          <h2 id="orders-heading" className="profile-card-title">
-            <i className="fi fi-rs-receipt" aria-hidden="true" />
-            Historial de órdenes
-          </h2>
-
-          {loadingOrders ? (
-            <div className="orders-loading" aria-live="polite">
-              <span className="spinner" aria-hidden="true" />
-              Cargando órdenes…
-            </div>
-          ) : orders.length === 0 ? (
-            <div className="orders-empty">
-              <i className="fi fi-rs-box-open" aria-hidden="true" />
-              <p>Aún no tienes compras registradas.</p>
+      {tab === 'ordenes' && (
+        <div className="profile-card">
+          {loadingOrdenes ? (
+            <p className="profile-loading">Cargando órdenes...</p>
+          ) : ordenes.length === 0 ? (
+            <div className="profile-empty">
+              <i className="fi fi-rs-box-alt" />
+              <p>No tienes órdenes aún</p>
             </div>
           ) : (
-            <div className="orders-list" role="list">
-              {orders.map(order => (
-                <article
-                  key={order.orderId}
-                  className={`order-item${expandedOrder === order.orderId ? ' order-item--open' : ''}`}
-                  role="listitem"
-                >
-                  <button
-                    type="button"
-                    className="order-header"
-                    onClick={() => toggleOrder(order.orderId)}
-                    aria-expanded={expandedOrder === order.orderId}
-                    aria-controls={`order-detail-${order.orderId}`}
+            <div className="ordenes-list">
+              {ordenes.map((orden) => (
+                <div key={orden.id} className="orden-card">
+                  <div
+                    className="orden-header"
+                    onClick={() => setExpandedOrden(expandedOrden === orden.id ? null : orden.id)}
                   >
-                    <div className="order-header-left">
-                      <span className="order-id">#{order.orderId}</span>
-                      <span className="order-date">
-                        {new Date(order.fecha).toLocaleDateString('es-PE', {
-                          day: '2-digit', month: 'short', year: 'numeric',
-                        })}
-                      </span>
+                    <div className="orden-meta">
+                      <span className="orden-id">#{String(orden.id).padStart(6, '0')}</span>
+                      <span className="orden-date">{formatDate(orden.createdAt)}</span>
                     </div>
-                    <div className="order-header-right">
-                      <span className={ESTADO_CLASS[order.estado]}>
-                        {ESTADO_LABEL[order.estado]}
+                    <div className="orden-right">
+                      <span className={`orden-estado orden-estado--${orden.estado.toLowerCase()}`}>
+                        {orden.estado}
                       </span>
-                      <strong className="order-total">
-                        S/ {order.total.toFixed(2)}
-                      </strong>
-                      <i
-                        className={`fi fi-rs-angle-${expandedOrder === order.orderId ? 'up' : 'down'} order-chevron`}
-                        aria-hidden="true"
-                      />
+                      <strong className="orden-total">S/ {orden.total.toFixed(2)}</strong>
+                      <i className={`fi fi-rs-angle-${expandedOrden === orden.id ? 'up' : 'down'}`} />
                     </div>
-                  </button>
+                  </div>
 
-                  {expandedOrder === order.orderId && (
-                    <div
-                      id={`order-detail-${order.orderId}`}
-                      className="order-detail"
-                    >
-                      <table className="order-table">
+                  {expandedOrden === orden.id && (
+                    <div className="orden-detail">
+                      <table className="orden-table">
                         <thead>
                           <tr>
                             <th>Producto</th>
-                            <th className="col-center">Cant.</th>
-                            <th className="col-right">Precio unit.</th>
-                            <th className="col-right">Subtotal</th>
+                            <th>Cant.</th>
+                            <th>P. Unit.</th>
+                            <th>Subtotal</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {order.items.map(item => (
-                            <tr key={item.productId}>
-                              <td>{item.name}</td>
-                              <td className="col-center">{item.quantity}</td>
-                              <td className="col-right">S/ {item.price.toFixed(2)}</td>
-                              <td className="col-right">
-                                S/ {(item.price * item.quantity).toFixed(2)}
-                              </td>
+                          {orden.items.map((item, i) => (
+                            <tr key={i}>
+                              <td>{item.productoNombre}</td>
+                              <td>{item.cantidad}</td>
+                              <td>S/ {item.precioUnitario.toFixed(2)}</td>
+                              <td>S/ {item.subtotal.toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>
-                        <tfoot>
-                          <tr>
-                            <td colSpan={3} className="col-right tfoot-label">Total</td>
-                            <td className="col-right tfoot-total">
-                              S/ {order.total.toFixed(2)}
-                            </td>
-                          </tr>
-                        </tfoot>
                       </table>
+
+                      <div className="orden-totals">
+                        <div className="orden-total-row">
+                          <span>Base imponible</span>
+                          <span>S/ {orden.subtotal.toFixed(2)}</span>
+                        </div>
+                        <div className="orden-total-row">
+                          <span>IGV 18%</span>
+                          <span>S/ {orden.igv.toFixed(2)}</span>
+                        </div>
+                        <div className="orden-total-row">
+                          <span>Envío ({orden.distrito})</span>
+                          <span>{orden.envio === 0 ? 'Gratis' : `S/ ${orden.envio.toFixed(2)}`}</span>
+                        </div>
+                        <div className="orden-total-row orden-total-final">
+                          <span>Total pagado</span>
+                          <strong>S/ {orden.total.toFixed(2)}</strong>
+                        </div>
+                        <div className="orden-total-row">
+                          <span>Método de pago</span>
+                          <span>{orden.metodoPago === 'card' ? 'Tarjeta' : 'Transferencia / QR'}</span>
+                        </div>
+                      </div>
                     </div>
                   )}
-                </article>
+                </div>
               ))}
             </div>
           )}
-        </section>
-
-      </div>
+        </div>
+      )}
     </div>
   );
 }
