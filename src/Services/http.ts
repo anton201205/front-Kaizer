@@ -1,7 +1,10 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_URL;
+const baseURL = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
 
+if (!import.meta.env.VITE_API_URL) {
+  console.warn('[HTTP] No está definido VITE_API_URL, usando http://localhost:8080 como fallback');
+}
 console.log('[HTTP] Base URL configurada:', baseURL);
 
 export const http = axios.create({ baseURL });

@@ -23,7 +23,7 @@ export type PerfilRequest = {
 export type PerfilUpdateResponse = {
   perfil: PerfilData;
   token?: string;
-};
+} | PerfilData;
 
 export type Orden = {
   id: number;

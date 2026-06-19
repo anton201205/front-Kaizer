@@ -80,17 +80,20 @@ export default function Profile() {
       };
 
       const updated = await updatePerfil(payload);
-      setPerfil(updated.perfil);
+      const perfilActual = 'perfil' in updated ? updated.perfil : updated;
+      const token = 'token' in updated ? updated.token : undefined;
+
+      setPerfil(perfilActual);
       setForm({
-        email: updated.perfil.email ?? form.email,
-        nombre: updated.perfil.nombre ?? '',
-        telefono: updated.perfil.telefono ?? '',
-        direccion: updated.perfil.direccion ?? '',
-        distrito: updated.perfil.distrito ?? '',
-        dni: updated.perfil.dni ?? '',
+        email: perfilActual.email ?? form.email,
+        nombre: perfilActual.nombre ?? '',
+        telefono: perfilActual.telefono ?? '',
+        direccion: perfilActual.direccion ?? '',
+        distrito: perfilActual.distrito ?? '',
+        dni: perfilActual.dni ?? '',
       });
-      if (updated.token) {
-        refreshToken(updated.token);
+      if (token) {
+        refreshToken(token);
       }
       toast.success('Perfil actualizado correctamente');
     } catch {
