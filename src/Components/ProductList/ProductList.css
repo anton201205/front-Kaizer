@@ -314,8 +314,6 @@
   transform: translateX(18px) !important;
 }
 
-/* --- 2.3 Skeleton loading --- */
-
 .kaizer-skeleton,
 .kaizer-skeleton-line {
   background: linear-gradient(

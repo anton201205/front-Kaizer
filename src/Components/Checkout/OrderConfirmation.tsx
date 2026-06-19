@@ -25,7 +25,6 @@ function payMethodLabel(m: 'card' | 'qr') {
   return m === 'card' ? 'Tarjeta de crédito/débito' : 'Transferencia bancaria / QR';
 }
 
-// Carga dinámica de jsPDF + html2canvas desde CDN
 async function loadLibs(): Promise<{ jsPDF: any; html2canvas: any }> {
   // jsPDF
   if (!(window as any).jspdf) {
@@ -59,7 +58,6 @@ async function generatePDF(
 ): Promise<void> {
   const { jsPDF, html2canvas } = await loadLibs();
 
-  // Capturamos en alta resolución con fondo blanco para impresión
   const canvas = await html2canvas(element, {
     scale: 2,
     useCORS: true,
@@ -73,12 +71,10 @@ async function generatePDF(
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
 
-  // Ajustamos la imagen para que ocupe el ancho completo con margen
   const margin = 12; // mm
   const imgW = pageW - margin * 2;
   const imgH = (canvas.height * imgW) / canvas.width;
 
-  // Si el contenido es más alto que la página, reducimos para que quepa
   const finalH = imgH > pageH - margin * 2 ? pageH - margin * 2 : imgH;
   const finalW = (canvas.width * finalH) / canvas.height;
   const offsetX = (pageW - finalW) / 2;
@@ -135,7 +131,6 @@ export default function OrderConfirmation({
   return (
     <div className="oc-wrapper">
 
-      {/* Área que se captura para el PDF — fondo blanco para impresión */}
       <div className="oc-receipt oc-print-surface" ref={receiptRef} id="printable-receipt">
 
         <div className="oc-header">
@@ -239,7 +234,6 @@ export default function OrderConfirmation({
           Pago confirmado
         </div>
 
-        {/* Indicador de generación automática */}
         <p className="oc-pdf-status">
           {pdfLoading ? 'Generando boleta PDF…' : 'Presiona un botón para descargar o ver la boleta.'}
         </p>

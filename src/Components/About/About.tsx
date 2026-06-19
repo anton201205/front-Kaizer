@@ -1,19 +1,16 @@
 import './About.css';
 
 export default function About() {
-  // Imagen de referencia para la sección de misión
   const teamImage = '/images/jpg2.jpg';
 
   return (
     <div className="about">
       <div className="about-container">
-        {/* Encabezado principal */}
         <h2 className="about-title">Sobre Kaizer Tech</h2>
         <p className="about-subtitle">
           Innovación, calidad y compromiso en cada dispositivo que llega a tus manos.
         </p>
 
-        {/* Sección de Misión con Imagen */}
         <div className="about-card">
           <div className="about-content">
             <h3>Nuestra Misión</h3>
@@ -40,11 +37,9 @@ export default function About() {
           </div>
         </div>
 
-        {/* Sección de Pilares / Valores en 3 Cards */}
         <h3 className="values-title">Nuestros Pilares</h3>
 
         <div className="values-grid">
-          {/* Card 1: Calidad */}
           <div className="value-card">
             <div className="value-icon">
               <i className="fi fi-rs-star"></i> 
@@ -55,7 +50,6 @@ export default function About() {
             </p>
           </div>
 
-          {/* Card 2: Atención */}
           <div className="value-card">
             <div className="value-icon">
               <i className="fi fi-rs-users"></i>
@@ -66,7 +60,6 @@ export default function About() {
             </p>
           </div>
 
-          {/* Card 3: Soporte */}
           <div className="value-card">
             <div className="value-icon">
               <i className="fi fi-rs-settings"></i>

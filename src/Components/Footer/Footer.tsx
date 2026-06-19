@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'; // Importante para la navegación interna
+import { Link } from 'react-router-dom';
 import "./Footer.css";
 
 const Footer = () => {
@@ -6,7 +6,6 @@ const Footer = () => {
         <footer className="footer">
             <div className="footer-container">
                 <div className="footer-left">
-                    {/* Usamos Link en lugar de <a> para que sea una Single Page Application */}
                     <Link to="/about">ABOUT US</Link>
                     <Link to="/social-media">SOCIAL MEDIA</Link>
                 </div>

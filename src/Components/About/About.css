@@ -1,9 +1,9 @@
-/* Contenedor principal de la página Sobre Nosotros */
+
 .about {
   width: 100%;
   padding: 80px 20px;
   background: var(--bg-primary);
-  font-family: 'IBM Plex Mono', monospace; /* Coherencia con tu marca */
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .about-container {
@@ -30,7 +30,6 @@
   margin-right: auto;
 }
 
-/* Card de Misión (La principal con imagen) */
 .about-card {
   display: flex;
   align-items: center;
@@ -61,7 +60,6 @@
   margin-bottom: 25px;
 }
 
-/* Botón de contacto con estilo Kaizer */
 .about-button {
   display: inline-block;
   padding: 14px 35px;
@@ -94,7 +92,6 @@
   filter: grayscale(15%); /* Estética elegante */
 }
 
-/* SECCIÓN DE PILARES (LAS 3 CARDS) */
 .values-title {
   font-size: 2.5rem;
   margin-bottom: 50px;
@@ -115,7 +112,7 @@
   border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centrado para que coincida con tu diseño */
+  align-items: center;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -148,7 +145,6 @@
   margin: 0;
 }
 
-/* RESPONSIVE DESIGN */
 @media (max-width: 1024px) {
   .about-card {
     flex-direction: column;
@@ -166,7 +162,7 @@
   }
 
   .values-grid {
-    grid-template-columns: 1fr; /* Una card por fila en móvil */
+    grid-template-columns: 1fr;
   }
 
   .about-card {
