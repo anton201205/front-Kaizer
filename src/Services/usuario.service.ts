@@ -12,11 +12,17 @@ export type PerfilData = {
 };
 
 export type PerfilRequest = {
+  email?: string;
   nombre?: string;
   telefono?: string;
   direccion?: string;
   distrito?: string;
   dni?: string;
+};
+
+export type PerfilUpdateResponse = {
+  perfil: PerfilData;
+  token?: string;
 };
 
 export type Orden = {
@@ -44,8 +50,8 @@ export async function getPerfil(): Promise<PerfilData> {
   return data;
 }
 
-export async function updatePerfil(payload: PerfilRequest): Promise<PerfilData> {
-  const { data } = await http.put<PerfilData>('/api/usuarios/perfil', payload);
+export async function updatePerfil(payload: PerfilRequest): Promise<PerfilUpdateResponse> {
+  const { data } = await http.put<PerfilUpdateResponse>('/api/usuarios/perfil', payload);
   return data;
 }
 

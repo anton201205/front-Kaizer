@@ -95,6 +95,11 @@ export default function CheckoutModal({
     const valid = method === 'card' ? validateCard() : validateQr();
     if (!valid) return;
 
+    if (!district.trim()) {
+      setFieldErrors({ district: 'Selecciona un distrito válido' });
+      return;
+    }
+
     setLoading(true);
     setError('');
 

@@ -15,6 +15,7 @@ type AuthContextType = {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, nombre: string, telefono: string, dni: string, distrito: string) => Promise<void>;
+  refreshToken: (token: string) => void;
   logout: () => void;
 };
 
@@ -67,6 +68,12 @@ export function AuthProvider({
     setUserEmail(parseEmailFromToken(token));
   };
 
+  const refreshToken = (newToken: string) => {
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
+    setUserEmail(parseEmailFromToken(newToken));
+  };
+
   const register = async (
     email: string,
     password: string,
@@ -102,6 +109,7 @@ export function AuthProvider({
       isAuthenticated: Boolean(token),
       login,
       register,
+      refreshToken,
       logout
     }),
     [token, userEmail]

@@ -20,7 +20,7 @@ const DISTRITOS = [
 ];
 
 export default function Profile() {
-  const { isAuthenticated, userEmail } = useAuth();
+  const { isAuthenticated, userEmail, refreshToken } = useAuth();
 
   const [perfil, setPerfil] = useState<PerfilData | null>(null);
   const [ordenes, setOrdenes] = useState<Orden[]>([]);
@@ -30,6 +30,7 @@ export default function Profile() {
   const [expandedOrden, setExpandedOrden] = useState<number | null>(null);
 
   const [form, setForm] = useState({
+    email: userEmail ?? '',
     nombre: '',
     telefono: '',
     direccion: '',
@@ -43,6 +44,7 @@ export default function Profile() {
       .then((data) => {
         setPerfil(data);
         setForm({
+          email: data.email ?? userEmail ?? '',
           nombre: data.nombre ?? '',
           telefono: data.telefono ?? '',
           direccion: data.direccion ?? '',
@@ -69,6 +71,7 @@ export default function Profile() {
     setSaving(true);
     try {
       const payload = {
+        ...(form.email.trim() ? { email: form.email.trim() } : {}),
         ...(form.nombre.trim() ? { nombre: form.nombre.trim() } : {}),
         ...(form.telefono.trim() ? { telefono: form.telefono.trim() } : {}),
         ...(form.direccion.trim() ? { direccion: form.direccion.trim() } : {}),
@@ -77,14 +80,18 @@ export default function Profile() {
       };
 
       const updated = await updatePerfil(payload);
-      setPerfil(updated);
+      setPerfil(updated.perfil);
       setForm({
-        nombre: updated.nombre ?? '',
-        telefono: updated.telefono ?? '',
-        direccion: updated.direccion ?? '',
-        distrito: updated.distrito ?? '',
-        dni: updated.dni ?? '',
+        email: updated.perfil.email ?? form.email,
+        nombre: updated.perfil.nombre ?? '',
+        telefono: updated.perfil.telefono ?? '',
+        direccion: updated.perfil.direccion ?? '',
+        distrito: updated.perfil.distrito ?? '',
+        dni: updated.perfil.dni ?? '',
       });
+      if (updated.token) {
+        refreshToken(updated.token);
+      }
       toast.success('Perfil actualizado correctamente');
     } catch {
       toast.error('Error al guardar el perfil');
@@ -117,6 +124,16 @@ export default function Profile() {
           <p className="profile-loading">Cargando...</p>
         ) : (
           <div className="profile-form">
+            <div className="profile-field">
+              <label>Email</label>
+              <input
+                type="email"
+                value={form.email}
+                placeholder="tu@email.com"
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+              />
+            </div>
+
             <div className="profile-field">
               <label>Nombre completo</label>
               <input
