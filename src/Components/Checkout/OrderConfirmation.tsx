@@ -1,17 +1,14 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import type { CartItem } from '../../Services/CartContext';
 import '../Checkout/OderConfirmation.css';
 
 interface Props {
-  orderId:    number;
-  subtotal:   number;
-  igv:        number;
-  envio:      number;
-  total:      number;
-  district:   string;
-  items:      CartItem[];
-  payMethod:  'card' | 'qr';
-  onClose:    () => void;
+  orderId:   number;
+  envio:     number;
+  district:  string;
+  items:     CartItem[];
+  payMethod: 'card' | 'qr';
+  onClose:   () => void;
 }
 
 function formatDate(): string {
@@ -102,39 +99,38 @@ async function generatePDF(
 }
 
 export default function OrderConfirmation({
-  orderId, subtotal, igv, envio, total, district, items, payMethod, onClose,
+  orderId, envio, district, items, payMethod, onClose,
 }: Props) {
   const receiptRef = useRef<HTMLDivElement>(null);
   const dateStr = formatDate();
   const filename = `boleta-kaizer-${String(orderId).padStart(6, '0')}.pdf`;
 
-  const [pdfReady, setPdfReady] = useState(false);
   const [pdfError, setPdfError] = useState('');
+  const [pdfLoading, setPdfLoading] = useState(false);
 
-  // Descarga automática al montar el componente (al confirmar pago)
-  useEffect(() => {
+  const itemsTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const computedSubtotal = Number((itemsTotal / 1.18).toFixed(2));
+  const computedIgv = Number((itemsTotal - computedSubtotal).toFixed(2));
+  const computedTotal = Number((itemsTotal + envio).toFixed(2));
+
+  const handleGenerate = async (mode: 'download' | 'preview') => {
     if (!receiptRef.current) return;
+    setPdfLoading(true);
+    setPdfError('');
 
-    // Pequeño delay para que el DOM termine de pintar
-    const timer = setTimeout(async () => {
-      try {
-        await generatePDF(receiptRef.current!, filename, 'download');
-        setPdfReady(true);
-      } catch (err) {
-        console.error('PDF error:', err);
-        setPdfError('No se pudo generar el PDF automáticamente.');
-        setPdfReady(true); // igual mostramos los botones manuales
-      }
-    }, 600);
+    try {
+      await generatePDF(receiptRef.current, filename, mode);
+    } catch (err) {
+      console.error('PDF error:', err);
+      setPdfError('No se pudo generar el PDF. Intenta nuevamente.');
+    } finally {
+      setPdfLoading(false);
+    }
+  };
 
-    return () => clearTimeout(timer);
-  }, []);
+  const handleDownload = () => void handleGenerate('download');
 
-  const handleDownload = () =>
-    receiptRef.current && generatePDF(receiptRef.current, filename, 'download');
-
-  const handlePreview = () =>
-    receiptRef.current && generatePDF(receiptRef.current, filename, 'preview');
+  const handlePreview = () => void handleGenerate('preview');
 
   return (
     <div className="oc-wrapper">
@@ -210,11 +206,11 @@ export default function OrderConfirmation({
         <div className="oc-totals">
           <div className="oc-total-row">
             <span>Subtotal (sin IGV)</span>
-            <span>S/ {subtotal.toFixed(2)}</span>
+            <span>S/ {computedSubtotal.toFixed(2)}</span>
           </div>
           <div className="oc-total-row">
             <span>IGV 18%</span>
-            <span>S/ {igv.toFixed(2)}</span>
+            <span>S/ {computedIgv.toFixed(2)}</span>
           </div>
           <div className="oc-total-row">
             <span>Costo de envío ({district})</span>
@@ -222,7 +218,7 @@ export default function OrderConfirmation({
           </div>
           <div className="oc-total-row oc-total-final">
             <span>TOTAL PAGADO</span>
-            <strong>S/ {total.toFixed(2)}</strong>
+            <strong>S/ {computedTotal.toFixed(2)}</strong>
           </div>
         </div>
 
@@ -244,12 +240,9 @@ export default function OrderConfirmation({
         </div>
 
         {/* Indicador de generación automática */}
-        {!pdfReady && (
-          <p className="oc-pdf-status">Generando boleta PDF…</p>
-        )}
-        {pdfReady && !pdfError && (
-          <p className="oc-pdf-status oc-pdf-ok">✓ Boleta descargada automáticamente</p>
-        )}
+        <p className="oc-pdf-status">
+          {pdfLoading ? 'Generando boleta PDF…' : 'Presiona un botón para descargar o ver la boleta.'}
+        </p>
         {pdfError && (
           <p className="oc-pdf-status oc-pdf-err">{pdfError}</p>
         )}

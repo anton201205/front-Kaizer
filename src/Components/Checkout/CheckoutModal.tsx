@@ -403,10 +403,7 @@ export default function CheckoutModal({
         {step === 'receipt' && orderId && (
           <OrderConfirmation
             orderId={orderId}
-            subtotal={subtotal}
-            igv={igv}
             envio={envio}
-            total={total}
             district={district}
             items={orderItems}
             payMethod={method}
