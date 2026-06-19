@@ -8,6 +8,8 @@ import {
 import type { Product } from '../Model/Product';
 import { warmUpBackend } from './backend.service';
 
+const API_URL = import.meta.env.VITE_API_URL as string | undefined;
+
 export type CartItem = Product & {
   quantity: number;
 };
@@ -147,9 +149,19 @@ export function CartProvider({
   };
 
   const syncCartFromBackend = async () => {
-    const res = await fetch(
-      'https://kaizer-back.onrender.com/api/cart'
-    );
+    if (!API_URL) {
+      throw new Error('Falta VITE_API_URL para sincronizar el carrito.');
+    }
+
+    const res = await fetch(`${API_URL.replace(/\/+$|$/, '')}/api/cart`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error al sincronizar el carrito: ${res.status}`);
+    }
 
     const data = await res.json();
 
