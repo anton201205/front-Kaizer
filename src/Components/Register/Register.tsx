@@ -9,6 +9,9 @@ import './Register.css';
 type RegisterForm = {
   email: string;
   password: string;
+  telefono: string;
+  dni: string;
+  distrito: string;
 };
 
 export default function Register() {
@@ -29,12 +32,15 @@ export default function Register() {
 
   const onSubmit = async ({
     email,
-    password
+    password,
+    telefono,
+    dni,
+    distrito
   }: RegisterForm) => {
     setError(null);
 
     try {
-      await registerUser(email, password);
+      await registerUser(email, password, telefono, dni, distrito);
       navigate('/', { replace: true });
     } catch (error: any) {
     const msg = error?.message ?? '';
@@ -96,6 +102,74 @@ export default function Register() {
             {errors.password && (
               <p className="auth-error">
                 Password mínimo 8 caracteres
+              </p>
+            )}
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="telefono">
+              Teléfono
+            </label>
+            <input
+              id="telefono"
+              className="auth-input"
+              type="tel"
+              autoComplete="tel"
+              placeholder="987654321"
+              {...register('telefono', {
+                required: true,
+                minLength: 6,
+                maxLength: 15
+              })}
+            />
+            {errors.telefono && (
+              <p className="auth-error">
+                Teléfono requerido
+              </p>
+            )}
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="dni">
+              DNI
+            </label>
+            <input
+              id="dni"
+              className="auth-input"
+              type="text"
+              autoComplete="off"
+              placeholder="12345678"
+              {...register('dni', {
+                required: true,
+                minLength: 6,
+                maxLength: 12
+              })}
+            />
+            {errors.dni && (
+              <p className="auth-error">
+                DNI requerido
+              </p>
+            )}
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="distrito">
+              Distrito
+            </label>
+            <input
+              id="distrito"
+              className="auth-input"
+              type="text"
+              autoComplete="address-level2"
+              placeholder="Miraflores"
+              {...register('distrito', {
+                required: true,
+                minLength: 3
+              })}
+            />
+            {errors.distrito && (
+              <p className="auth-error">
+                Distrito requerido
               </p>
             )}
           </div>

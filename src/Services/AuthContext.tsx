@@ -14,7 +14,7 @@ type AuthContextType = {
   userEmail: string | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, telefono: string, dni: string, distrito: string) => Promise<void>;
   logout: () => void;
 };
 
@@ -67,10 +67,19 @@ export function AuthProvider({
     setUserEmail(parseEmailFromToken(token));
   };
 
-  const register = async (email: string, password: string) => {
+  const register = async (
+    email: string,
+    password: string,
+    telefono: string,
+    dni: string,
+    distrito: string
+  ) => {
     const { token } = await registerRequest(
       email,
-      password
+      password,
+      telefono,
+      dni,
+      distrito
     );
 
     localStorage.setItem('token', token);

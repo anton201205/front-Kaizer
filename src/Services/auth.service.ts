@@ -22,10 +22,22 @@ export async function login(email: string, password: string): Promise<LoginRespo
   }
 }
 
-export async function register(email: string, password: string): Promise<LoginResponse> {
+export async function register(
+  email: string,
+  password: string,
+  telefono: string,
+  dni: string,
+  distrito: string
+): Promise<LoginResponse> {
   console.log('[AUTH] Register →', `${API_URL}/api/auth/register`);
   try {
-    const { data } = await http.post<LoginResponse>('/api/auth/register', { email, password });
+    const { data } = await http.post<LoginResponse>('/api/auth/register', {
+      email,
+      password,
+      telefono,
+      dni,
+      distrito
+    });
     console.log('[AUTH] Registro exitoso');
     return data;
   } catch (error: any) {
