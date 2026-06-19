@@ -136,9 +136,6 @@ export default function OrderConfirmation({
   const handlePreview = () =>
     receiptRef.current && generatePDF(receiptRef.current, filename, 'preview');
 
-  const handleBoth = () =>
-    receiptRef.current && generatePDF(receiptRef.current, filename, 'both');
-
   return (
     <div className="oc-wrapper">
 
