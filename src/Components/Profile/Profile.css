@@ -64,7 +64,6 @@
   width: 100%;
 }
 
-/* ---- FORM: fila horizontal en vez de grid ---- */
 .profile-form {
   display: flex;
   flex-wrap: wrap;

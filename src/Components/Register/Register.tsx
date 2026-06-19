@@ -138,17 +138,24 @@ export default function Register() {
               id="telefono"
               className="auth-input"
               type="tel"
+              inputMode="numeric"
               autoComplete="tel"
               placeholder="987654321"
+              maxLength={9}
               {...register('telefono', {
                 required: true,
-                minLength: 6,
-                maxLength: 15
+                pattern: {
+                  value: /^[0-9]{9}$/,
+                  message: 'El teléfono debe tener exactamente 9 dígitos',
+                },
+                onChange: (e) => {
+                  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
+                },
               })}
             />
             {errors.telefono && (
               <p className="auth-error">
-                Teléfono requerido
+                {errors.telefono.message || 'Teléfono requerido (9 dígitos)'}
               </p>
             )}
           </div>
@@ -161,17 +168,24 @@ export default function Register() {
               id="dni"
               className="auth-input"
               type="text"
+              inputMode="numeric"
               autoComplete="off"
               placeholder="12345678"
+              maxLength={8}
               {...register('dni', {
                 required: true,
-                minLength: 6,
-                maxLength: 12
+                pattern: {
+                  value: /^[0-9]{8}$/,
+                  message: 'El DNI debe tener exactamente 8 dígitos',
+                },
+                onChange: (e) => {
+                  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 8);
+                },
               })}
             />
             {errors.dni && (
               <p className="auth-error">
-                DNI requerido
+                {errors.dni.message || 'DNI requerido (8 dígitos)'}
               </p>
             )}
           </div>
