@@ -14,7 +14,7 @@ type AuthContextType = {
   userEmail: string | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, telefono: string, dni: string, distrito: string) => Promise<void>;
+  register: (email: string, password: string, nombre: string, telefono: string, dni: string, distrito: string) => Promise<void>;
   logout: () => void;
 };
 
@@ -70,6 +70,7 @@ export function AuthProvider({
   const register = async (
     email: string,
     password: string,
+    nombre: string,
     telefono: string,
     dni: string,
     distrito: string
@@ -77,6 +78,7 @@ export function AuthProvider({
     const { token } = await registerRequest(
       email,
       password,
+      nombre,
       telefono,
       dni,
       distrito

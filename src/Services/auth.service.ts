@@ -25,6 +25,7 @@ export async function login(email: string, password: string): Promise<LoginRespo
 export async function register(
   email: string,
   password: string,
+  nombre: string,
   telefono: string,
   dni: string,
   distrito: string
@@ -34,6 +35,7 @@ export async function register(
     const { data } = await http.post<LoginResponse>('/api/auth/register', {
       email,
       password,
+      nombre,
       telefono,
       dni,
       distrito

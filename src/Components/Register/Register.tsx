@@ -9,6 +9,7 @@ import './Register.css';
 type RegisterForm = {
   email: string;
   password: string;
+  nombre: string;
   telefono: string;
   dni: string;
   distrito: string;
@@ -33,6 +34,7 @@ export default function Register() {
   const onSubmit = async ({
     email,
     password,
+    nombre,
     telefono,
     dni,
     distrito
@@ -40,7 +42,7 @@ export default function Register() {
     setError(null);
 
     try {
-      await registerUser(email, password, telefono, dni, distrito);
+      await registerUser(email, password, nombre, telefono, dni, distrito);
       navigate('/', { replace: true });
     } catch (error: any) {
     const msg = error?.message ?? '';
@@ -102,6 +104,28 @@ export default function Register() {
             {errors.password && (
               <p className="auth-error">
                 Password mínimo 8 caracteres
+              </p>
+            )}
+          </div>
+
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="nombre">
+              Nombre completo
+            </label>
+            <input
+              id="nombre"
+              className="auth-input"
+              type="text"
+              autoComplete="name"
+              placeholder="Juan Pérez"
+              {...register('nombre', {
+                required: true,
+                minLength: 3
+              })}
+            />
+            {errors.nombre && (
+              <p className="auth-error">
+                Nombre requerido
               </p>
             )}
           </div>
