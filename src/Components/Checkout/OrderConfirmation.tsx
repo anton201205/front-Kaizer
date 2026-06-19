@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import type { CartItem } from '../../Services/CartContext';
 import '../Checkout/OderConfirmation.css';
 
@@ -28,69 +28,122 @@ function payMethodLabel(m: 'card' | 'qr') {
   return m === 'card' ? 'Tarjeta de crédito/débito' : 'Transferencia bancaria / QR';
 }
 
+// Carga dinámica de jsPDF + html2canvas desde CDN
+async function loadLibs(): Promise<{ jsPDF: any; html2canvas: any }> {
+  // jsPDF
+  if (!(window as any).jspdf) {
+    await new Promise<void>((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('jsPDF load failed'));
+      document.head.appendChild(s);
+    });
+  }
+  // html2canvas
+  if (!(window as any).html2canvas) {
+    await new Promise<void>((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('html2canvas load failed'));
+      document.head.appendChild(s);
+    });
+  }
+  const { jsPDF } = (window as any).jspdf;
+  const html2canvas = (window as any).html2canvas;
+  return { jsPDF, html2canvas };
+}
+
+async function generatePDF(
+  element: HTMLElement,
+  filename: string,
+  mode: 'download' | 'preview' | 'both',
+): Promise<void> {
+  const { jsPDF, html2canvas } = await loadLibs();
+
+  // Capturamos en alta resolución con fondo blanco para impresión
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+    logging: false,
+  });
+
+  const imgData = canvas.toDataURL('image/png');
+  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+
+  // Ajustamos la imagen para que ocupe el ancho completo con margen
+  const margin = 12; // mm
+  const imgW = pageW - margin * 2;
+  const imgH = (canvas.height * imgW) / canvas.width;
+
+  // Si el contenido es más alto que la página, reducimos para que quepa
+  const finalH = imgH > pageH - margin * 2 ? pageH - margin * 2 : imgH;
+  const finalW = (canvas.width * finalH) / canvas.height;
+  const offsetX = (pageW - finalW) / 2;
+
+  pdf.addImage(imgData, 'PNG', offsetX, margin, finalW, finalH);
+
+  if (mode === 'download' || mode === 'both') {
+    pdf.save(filename);
+  }
+
+  if (mode === 'preview' || mode === 'both') {
+    const pdfBlob = pdf.output('blob');
+    const url = URL.createObjectURL(pdfBlob);
+    window.open(url, '_blank');
+    // Liberamos la URL después de 60 s
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  }
+}
+
 export default function OrderConfirmation({
   orderId, subtotal, igv, envio, total, district, items, payMethod, onClose,
 }: Props) {
   const receiptRef = useRef<HTMLDivElement>(null);
   const dateStr = formatDate();
+  const filename = `boleta-kaizer-${String(orderId).padStart(6, '0')}.pdf`;
 
-const handlePrint = () => {
-  const receiptEl = document.getElementById('printable-receipt');
-  if (!receiptEl) return;
+  const [pdfReady, setPdfReady] = useState(false);
+  const [pdfError, setPdfError] = useState('');
 
-  const printWindow = window.open('', '_blank', 'width=800,height=600');
-  if (!printWindow) return;
+  // Descarga automática al montar el componente (al confirmar pago)
+  useEffect(() => {
+    if (!receiptRef.current) return;
 
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html lang="es">
-    <head>
-      <meta charset="UTF-8" />
-      <title>Boleta #${String(orderId).padStart(6, '0')} - Kaizer Store</title>
-      <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Courier New', monospace; background: #fff; color: #000; padding: 2rem; }
-        .oc-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
-        .oc-logo { display: flex; align-items: center; gap: 0.5rem; }
-        .oc-logo-mark { font-size: 2rem; font-weight: bold; }
-        .oc-logo-name { font-size: 1.2rem; font-weight: bold; }
-        .oc-company-info { text-align: right; font-size: 0.8rem; line-height: 1.6; }
-        .oc-doc-type { text-align: center; font-weight: bold; font-size: 1rem; border: 2px solid #000; padding: 0.4rem; margin: 1rem 0; }
-        .oc-order-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem; }
-        .oc-meta-label { font-size: 0.7rem; text-transform: uppercase; color: #555; display: block; }
-        .oc-meta-value { font-weight: bold; font-size: 0.9rem; }
-        .oc-order-id { font-size: 1.1rem; }
-        .oc-divider { border-top: 1px dashed #000; margin: 1rem 0; }
-        .oc-items-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
-        .oc-items-table th { border-bottom: 2px solid #000; padding: 0.4rem; text-align: left; }
-        .oc-items-table td { padding: 0.4rem; border-bottom: 1px solid #ddd; }
-        .oc-th-qty, .oc-td-qty, .oc-th-price, .oc-td-price, .oc-th-total, .oc-td-total { text-align: right; }
-        .oc-item-cat { display: block; font-size: 0.75rem; color: #666; }
-        .oc-totals { margin-left: auto; width: 60%; }
-        .oc-total-row { display: flex; justify-content: space-between; padding: 0.25rem 0; font-size: 0.85rem; }
-        .oc-total-final { font-weight: bold; font-size: 1rem; border-top: 2px solid #000; margin-top: 0.5rem; padding-top: 0.5rem; }
-        .oc-footer { text-align: center; font-size: 0.75rem; color: #555; line-height: 1.8; margin-top: 1rem; }
-        .oc-footer-thanks { font-weight: bold; color: #000; margin-top: 0.5rem; }
-      </style>
-    </head>
-    <body>
-      ${receiptEl.innerHTML}
-    </body>
-    </html>
-  `);
+    // Pequeño delay para que el DOM termine de pintar
+    const timer = setTimeout(async () => {
+      try {
+        await generatePDF(receiptRef.current!, filename, 'download');
+        setPdfReady(true);
+      } catch (err) {
+        console.error('PDF error:', err);
+        setPdfError('No se pudo generar el PDF automáticamente.');
+        setPdfReady(true); // igual mostramos los botones manuales
+      }
+    }, 600);
 
-  printWindow.document.close();
-  printWindow.focus();
+    return () => clearTimeout(timer);
+  }, []);
 
-  setTimeout(() => {
-    printWindow.print();
-  }, 500);
-};
+  const handleDownload = () =>
+    receiptRef.current && generatePDF(receiptRef.current, filename, 'download');
+
+  const handlePreview = () =>
+    receiptRef.current && generatePDF(receiptRef.current, filename, 'preview');
+
+  const handleBoth = () =>
+    receiptRef.current && generatePDF(receiptRef.current, filename, 'both');
 
   return (
     <div className="oc-wrapper">
-      {/* Área imprimible */}
-      <div className="oc-receipt" ref={receiptRef} id="printable-receipt">
+
+      {/* Área que se captura para el PDF — fondo blanco para impresión */}
+      <div className="oc-receipt oc-print-surface" ref={receiptRef} id="printable-receipt">
 
         <div className="oc-header">
           <div className="oc-logo">
@@ -185,20 +238,47 @@ const handlePrint = () => {
         </div>
       </div>
 
+      {/* Acciones */}
       <div className="oc-actions no-print">
+
         <div className="oc-success-badge">
           <span className="oc-checkmark">✓</span>
           Pago confirmado
         </div>
 
+        {/* Indicador de generación automática */}
+        {!pdfReady && (
+          <p className="oc-pdf-status">Generando boleta PDF…</p>
+        )}
+        {pdfReady && !pdfError && (
+          <p className="oc-pdf-status oc-pdf-ok">✓ Boleta descargada automáticamente</p>
+        )}
+        {pdfError && (
+          <p className="oc-pdf-status oc-pdf-err">{pdfError}</p>
+        )}
+
         <div className="oc-action-buttons">
-          <button className="oc-btn-print" onClick={handlePrint}>
-            Imprimir / Guardar PDF
+          <button
+            className="oc-btn-print"
+            onClick={handleDownload}
+            title="Descargar PDF"
+          >
+            ↓ Descargar PDF
           </button>
+
+          <button
+            className="oc-btn-preview"
+            onClick={handlePreview}
+            title="Abrir en nueva pestaña"
+          >
+            ↗ Ver boleta
+          </button>
+
           <button className="oc-btn-close" onClick={onClose}>
             Volver a la tienda
           </button>
         </div>
+
       </div>
     </div>
   );

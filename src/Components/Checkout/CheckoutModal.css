@@ -1,8 +1,3 @@
-/* ============================================================
-   CHECKOUT MODAL — Paleta negro/blanco
-   Acento principal: #ffffff  |  Superficies: #111 / #1a1a1a
-   ============================================================ */
-
 .co-overlay {
   position: fixed;
   inset: 0;
@@ -91,7 +86,6 @@
   margin: 0;
 }
 
-/* ---- Métodos de pago ---- */
 .co-methods {
   display: flex;
   flex-direction: column;
@@ -141,7 +135,6 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
-/* ---- Mini resumen ---- */
 .co-mini-summary {
   background: #1a1a1a;
   border: 1px solid #222;
@@ -162,7 +155,6 @@
   color: #fff;
 }
 
-/* ---- Tarjeta preview ---- */
 .co-card-preview {
   background: #1a1a1a;
   border: 1px solid #2e2e2e;
@@ -228,7 +220,6 @@
   white-space: nowrap;
 }
 
-/* ---- Campos del formulario ---- */
 .co-field-group {
   display: flex;
   flex-direction: column;
@@ -294,7 +285,6 @@
   color: #f87171;
 }
 
-/* ---- Errores globales ---- */
 .co-global-error {
   font-size: 0.8rem;
   color: #f87171;
@@ -305,7 +295,6 @@
   margin: 0;
 }
 
-/* ---- Botones ---- */
 .co-btn-primary {
   width: 100%;
   background: #ffffff;
@@ -352,7 +341,6 @@
   border-color: #3a3a3a;
 }
 
-/* ---- QR / Transferencia ---- */
 .co-payment-highlight {
   display: flex;
   justify-content: space-between;
@@ -447,7 +435,6 @@
   margin-top: 0.25rem;
 }
 
-/* ---- Resumen en carrito (Cart.css dependencias) ---- */
 .summary-district {
   display: flex;
   flex-direction: column;
@@ -505,7 +492,6 @@
   text-align: center;
 }
 
-/* ---- Responsive ---- */
 @media (max-width: 640px) {
   .co-qr-wrapper {
     flex-direction: column;
