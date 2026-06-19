@@ -19,16 +19,13 @@ const DISTRITOS = [
   'Villa María del Triunfo','San Juan de Miraflores','Chorrillos','Callao','Otro distrito',
 ];
 
-type Tab = 'perfil' | 'ordenes';
-
 export default function Profile() {
   const { isAuthenticated, userEmail } = useAuth();
 
-  const [tab, setTab] = useState<Tab>('perfil');
   const [perfil, setPerfil] = useState<PerfilData | null>(null);
   const [ordenes, setOrdenes] = useState<Orden[]>([]);
   const [loadingPerfil, setLoadingPerfil] = useState(true);
-  const [loadingOrdenes, setLoadingOrdenes] = useState(false);
+  const [loadingOrdenes, setLoadingOrdenes] = useState(true);
   const [saving, setSaving] = useState(false);
   const [expandedOrden, setExpandedOrden] = useState<number | null>(null);
 
@@ -59,13 +56,12 @@ export default function Profile() {
   }, []);
 
   useEffect(() => {
-    if (tab !== 'ordenes') return;
     setLoadingOrdenes(true);
     getMisOrdenes()
       .then(setOrdenes)
       .catch(() => toast.error('No se pudo cargar el historial'))
       .finally(() => setLoadingOrdenes(false));
-  }, [tab]);
+  }, []);
 
   const handleSave = async () => {
     setSaving(true);
@@ -99,27 +95,11 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="profile-tabs">
-        <button
-          className={`profile-tab ${tab === 'perfil' ? 'active' : ''}`}
-          onClick={() => setTab('perfil')}
-        >
-          <i className="fi fi-rs-user" /> Datos personales
-        </button>
-        <button
-          className={`profile-tab ${tab === 'ordenes' ? 'active' : ''}`}
-          onClick={() => setTab('ordenes')}
-        >
-          <i className="fi fi-rs-box-alt" /> Mis órdenes
-        </button>
-      </div>
-
-      {tab === 'perfil' && (
-        <div className="profile-card">
-          {loadingPerfil ? (
-            <p className="profile-loading">Cargando...</p>
-          ) : (
-            <div className="profile-form">
+      <div className="profile-card profile-card--wide">
+        {loadingPerfil ? (
+          <p className="profile-loading">Cargando...</p>
+        ) : (
+          <div className="profile-form">
               <div className="profile-field">
                 <label>Nombre completo</label>
                 <input
@@ -185,19 +165,18 @@ export default function Profile() {
             </div>
           )}
         </div>
-      )}
 
-      {tab === 'ordenes' && (
-        <div className="profile-card">
-          {loadingOrdenes ? (
-            <p className="profile-loading">Cargando órdenes...</p>
-          ) : ordenes.length === 0 ? (
-            <div className="profile-empty">
-              <i className="fi fi-rs-box-alt" />
-              <p>No tienes órdenes aún</p>
-            </div>
-          ) : (
-            <div className="ordenes-list">
+      <div className="profile-card profile-card--wide profile-ordenes">
+        <h3 className="ordenes-title">Mis órdenes</h3>
+        {loadingOrdenes ? (
+          <p className="profile-loading">Cargando órdenes...</p>
+        ) : ordenes.length === 0 ? (
+          <div className="profile-empty">
+            <i className="fi fi-rs-box-alt" />
+            <p>No tienes órdenes aún</p>
+          </div>
+        ) : (
+          <div className="ordenes-list">
               {ordenes.map((orden) => (
                 <div key={orden.id} className="orden-card">
                   <div
@@ -269,7 +248,6 @@ export default function Profile() {
             </div>
           )}
         </div>
-      )}
     </div>
   );
 }
