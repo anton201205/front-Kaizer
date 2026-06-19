@@ -5,12 +5,14 @@ import { toast } from 'sonner';
 import type { Product } from '../../Model/Product';
 import { getProductById } from '../../Services/product.service';
 import { useCart } from '../../Services/CartContext';
+import { useAuth } from '../../Services/AuthContext';
 
 import './ProductDetail.css';
 
 export default function ProductDetail() {
   const { id } = useParams();
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,6 +55,10 @@ export default function ProductDetail() {
 
   const onAddToCart = () => {
     if (!product) return;
+    if (!isAuthenticated) {
+      toast.error('Debes iniciar sesión para añadir productos al carrito.');
+      return;
+    }
     addToCart(product);
     toast.success(`${product.name || 'Producto'} añadido al carrito`);
   };
@@ -141,9 +147,14 @@ export default function ProductDetail() {
           </p>
 
           <div className="kaizer-detail-actions">
-            <button className="kaizer-btn-add-cart" disabled={dbStock <= 0} onClick={onAddToCart}>
-              <i className="fi fi-rs-shopping-cart" style={{ marginRight: '8px' }}></i> Añadir al carrito
-            </button>
+            <button
+            className="kaizer-btn-add-cart"
+            disabled={dbStock <= 0 || !isAuthenticated}
+            onClick={onAddToCart}
+          >
+            <i className="fi fi-rs-shopping-cart" style={{ marginRight: '8px' }}></i>
+            {isAuthenticated ? 'Añadir al carrito' : 'Inicia sesión'}
+          </button>
             <Link to="/cart" className="kaizer-btn-view-cart">
               Ver carrito
             </Link>

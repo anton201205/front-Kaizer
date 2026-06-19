@@ -2,7 +2,7 @@ import './About.css';
 
 export default function About() {
   // Imagen de referencia para la sección de misión
-  const teamImage = '/images/innovacell-celulares.jpeg_1902800913.webp';
+  const teamImage = 'https://revistaganamas.com.pe/wp-content/uploads/2024/05/Osiptel-brinda-recomendaciones-para-comprar-celulares-Evita-el-bloqueo-y-la-compra-de-equipos-robados.jpg';
 
   return (
     <div className="about">

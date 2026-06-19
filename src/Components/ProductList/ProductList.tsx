@@ -5,12 +5,14 @@ import { toast } from 'sonner';
 import type { Product } from '../../Model/Product';
 import { useProducts } from '../../Hooks/useProducts';
 import { useCart } from '../../Services/CartContext';
+import { useAuth } from '../../Services/AuthContext';
 
 import './ProductList.css';
 
 export default function ProductList() {
   const { products, loading, error } = useProducts();
   const { addToCart } = useCart();
+  const { isAuthenticated } = useAuth();
 
   const [searchParams] = useSearchParams();
   const searchQuery = (searchParams.get('q') ?? '').trim().toLowerCase();
@@ -215,13 +217,17 @@ export default function ProductList() {
                     </Link>
                     <button
                       className="kaizer-btn-cart"
-                      disabled={outOfStock.has(product.id)}
+                      disabled={outOfStock.has(product.id) || !isAuthenticated}
                       onClick={() => {
+                        if (!isAuthenticated) {
+                          toast.error('Debes iniciar sesión para añadir productos al carrito.');
+                          return;
+                        }
                         addToCart(product as Product);
                         toast.success(`${currentName} añadido al carrito`);
                       }}
                     >
-                       Añadir
+                      {isAuthenticated ? 'Añadir' : 'Inicia sesión'}
                     </button>
                   </div>
                 </div>
