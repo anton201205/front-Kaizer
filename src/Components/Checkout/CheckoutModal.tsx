@@ -42,6 +42,7 @@ export default function CheckoutModal({
   const [method, setMethod] = useState<PayMethod>('card');
   const [loading, setLoading] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
+  const [orderItems, setOrderItems] = useState<CartItem[]>([]);
   const [error, setError] = useState('');
 
   const [cardNum, setCardNum] = useState('');
@@ -99,6 +100,7 @@ export default function CheckoutModal({
 
     try {
       const res = await checkout(cart, envio, district, method);
+      setOrderItems(cart.map((item) => ({ ...item })));
       setOrderId(res.orderId);
       setStep('receipt');
       onSuccess(res.orderId);
@@ -406,7 +408,7 @@ export default function CheckoutModal({
             envio={envio}
             total={total}
             district={district}
-            items={cart}
+            items={orderItems}
             payMethod={method}
             onClose={onClose}
           />

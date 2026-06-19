@@ -96,7 +96,7 @@ async function generatePDF(
     const pdfBlob = pdf.output('blob');
     const url = URL.createObjectURL(pdfBlob);
     window.open(url, '_blank');
-    // Liberamos la URL después de 60 s
+
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 }

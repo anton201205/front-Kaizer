@@ -254,7 +254,6 @@ export default function Cart() {
               items: [...cart],
             };
             clearCart();
-            setShowCheckout(false);
             setOrderData(data);
           }}
         />
