@@ -96,7 +96,9 @@ export default function CheckoutModal({
     if (!valid) return;
 
     if (!district.trim()) {
-      setFieldErrors({ district: 'Selecciona un distrito válido' });
+      setLoading(false);
+      setFieldErrors({ district: 'Necesitas establecer tu dirección antes de pagar.' });
+      setError('Necesitas establecer tu dirección antes de pagar.');
       return;
     }
 
