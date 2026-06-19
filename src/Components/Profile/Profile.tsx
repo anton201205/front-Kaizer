@@ -68,8 +68,23 @@ export default function Profile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const updated = await updatePerfil(form);
+      const payload = {
+        ...(form.nombre.trim() ? { nombre: form.nombre.trim() } : {}),
+        ...(form.telefono.trim() ? { telefono: form.telefono.trim() } : {}),
+        ...(form.direccion.trim() ? { direccion: form.direccion.trim() } : {}),
+        ...(form.distrito.trim() ? { distrito: form.distrito.trim() } : {}),
+        ...(form.dni.trim() ? { dni: form.dni.trim() } : {}),
+      };
+
+      const updated = await updatePerfil(payload);
       setPerfil(updated);
+      setForm({
+        nombre: updated.nombre ?? '',
+        telefono: updated.telefono ?? '',
+        direccion: updated.direccion ?? '',
+        distrito: updated.distrito ?? '',
+        dni: updated.dni ?? '',
+      });
       toast.success('Perfil actualizado correctamente');
     } catch {
       toast.error('Error al guardar el perfil');

@@ -10,6 +10,8 @@ interface ProductoApi {
   imageUrl?: string;
   descripcion?: string;
   especificaciones?: any;
+  categoria?: string;
+  category?: string;
 }
 
 function mapApiToProduct(p: ProductoApi): Product {
@@ -18,7 +20,7 @@ function mapApiToProduct(p: ProductoApi): Product {
     name: p.nombre,
     price: p.precio,
     imageUrl: p.imageUrl ?? p.image_url ?? '',
-    category: 'General',
+    category: p.categoria ?? p.category ?? 'General',
     description: p.descripcion ?? (p.stock != null ? `Unidades en stock: ${p.stock}.` : undefined),
     stock: p.stock,
     specifications: p.especificaciones
